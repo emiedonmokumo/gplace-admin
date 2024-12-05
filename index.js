@@ -4,6 +4,7 @@ import swaggerUi from 'swagger-ui-express';
 import investorRoute from './routes/investorRoute.js';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
+import cors from 'cors';
 
 dotenv.config();
 connectDB();
@@ -27,6 +28,7 @@ const options = {
 const swaggerSpec = swaggerJsdoc(options);
 
 app.use(express.json());
+app.use(cors());
 
 // Serve swagger docs
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
