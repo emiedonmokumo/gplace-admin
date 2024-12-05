@@ -1,0 +1,1 @@
+## Goodplace CRM Admin API
