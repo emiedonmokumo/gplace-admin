@@ -29,7 +29,7 @@ const swaggerSpec = swaggerJsdoc(options);
 app.use(express.json());
 
 // Serve swagger docs
-app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/api/investor', investorRoute);
 
