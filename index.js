@@ -11,6 +11,7 @@ connectDB();
 
 const PORT = process.env.PORT;
 const app = express();
+
 const swaggerDefinition = {
     openapi: '3.0.0',
     info: {
@@ -18,7 +19,14 @@ const swaggerDefinition = {
         version: '1.0.0',
         description: 'API documentation for my app',
     },
+    servers: [
+        {
+            url: process.env.BASE_URL || `http://localhost:${PORT}`,
+            description: 'API Base URL',
+        },
+    ],
 };
+
 const options = {
     swaggerDefinition,
     apis: ['./routes/*.js', './routes/*.mjs'], // path to the API route files
