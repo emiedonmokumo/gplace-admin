@@ -52,6 +52,13 @@ app.use(
     swaggerUi.setup(null, { swaggerOptions: { url: '/swagger-static/swagger.json' } })
 );
 
+// Serve Swagger JSON
+app.get('/swagger-static/swagger.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
+});
+
+
 // Serve swagger docs
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
