@@ -1,5 +1,5 @@
 import express from 'express'
-import { handleStripeWebhook } from '../controllers/stripe';
+import { handleStripeWebhook } from '../controllers/stripe.js';
 import bodyParser from 'body-parser';
 const router = express.Router()
 
