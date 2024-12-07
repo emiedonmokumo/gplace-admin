@@ -1,23 +1,20 @@
 import express from 'express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import authRoute from './routes/authRoute.js'
+import authRoute from './routes/authRoute.js';
 import investorRoute from './routes/investorRoute.js';
-import stripeRoute from './routes/stripeRoute.js'
+import stripeRoute from './routes/stripeRoute.js';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
-
 import path from 'path';
 import bodyParser from 'body-parser';
-
-
 
 dotenv.config();
 connectDB();
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 8080;
 const app = express();
 
 const swaggerDefinition = {
@@ -31,6 +28,20 @@ const swaggerDefinition = {
         {
             url: process.env.BASE_URL || `http://localhost:${PORT}`,
             description: 'API Base URL',
+        },
+    ],
+    components: {
+        securitySchemes: {
+            bearerAuth: {
+                type: 'http',
+                scheme: 'bearer',
+                bearerFormat: 'JWT',
+            },
+        },
+    },
+    security: [
+        {
+            bearerAuth: [],
         },
     ],
 };
@@ -50,12 +61,9 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
+
+// Serve static Swagger UI assets
 app.use('/swagger-static', express.static(path.join(__dirname, 'node_modules', 'swagger-ui-dist')));
-app.use(
-    '/docs',
-    swaggerUi.serveFiles(null, { swaggerOptions: { url: '/swagger-static/swagger.json' } }),
-    swaggerUi.setup(null, { swaggerOptions: { url: '/swagger-static/swagger.json' } })
-);
 
 // Serve Swagger JSON
 app.get('/swagger-static/swagger.json', (req, res) => {
@@ -63,16 +71,20 @@ app.get('/swagger-static/swagger.json', (req, res) => {
     res.send(swaggerSpec);
 });
 
+// Serve Swagger docs
+app.use(
+    '/docs',
+    swaggerUi.serveFiles(null, { swaggerOptions: { url: '/swagger-static/swagger.json' } }),
+    swaggerUi.setup(null, { swaggerOptions: { url: '/swagger-static/swagger.json' } })
+);
 
-// Serve swagger docs
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-app.use('/api/auth', authRoute)
+// API routes
+app.use('/api/auth', authRoute);
 app.use('/api/investor', investorRoute);
-app.use('/api/stripe', stripeRoute)
+app.use('/api/stripe', stripeRoute);
 
-
-app.listen(PORT || 8080, () => {
-    console.log(`Server running on ${PORT}`);
-    console.log(`Swagger docs available at ${PORT}/docs`);
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Swagger docs available at http://localhost:${PORT}/docs`);
 });

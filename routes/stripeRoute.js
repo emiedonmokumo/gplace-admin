@@ -1,5 +1,6 @@
 import express from 'express'
 import { getStripeEvents } from '../controllers/stripe.js';
+import authenticate from '../middleware/authMiddleware.js';
 const router = express.Router()
 
 // Event Route
@@ -40,6 +41,6 @@ const router = express.Router()
  *                   type: string
  *                   example: 'Error message here'
  */
-router.get('/event', getStripeEvents);
+router.get('/event', authenticate, getStripeEvents);
 
 export default router

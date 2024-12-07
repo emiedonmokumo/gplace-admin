@@ -1,25 +1,135 @@
-import express from 'express'
-import { deleteInvestor, getAllInvestors, getInvestor } from '../controllers/investor.js'
+import express from 'express';
+import {
+    createInvestor,
+  deleteInvestor,
+  getAllInvestors,
+  getInvestor,
+} from '../controllers/investor.js';
 import { getInvestorContacts } from '../controllers/investorContact.js';
-const router = express.Router()
+import authenticate from '../middleware/authMiddleware.js';
+
+const router = express.Router();
+
+/**
+ * @swagger
+ * /:
+ *   post:
+ *     summary: Create a new investor
+ *     security:
+ *       - BearerAuth: []
+ *     tags:
+ *       - Investor
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               companyInfo:
+ *                 type: object
+ *                 required:
+ *                   - companyName
+ *                   - country
+ *                   - city
+ *                   - website
+ *                   - yearFounded
+ *                   - employeeNumber
+ *                   - investorType
+ *                   - description
+ *                 properties:
+ *                   companyName:
+ *                     type: string
+ *                     example: "Volaris Capital"
+ *                   country:
+ *                     type: string
+ *                     example: "USA"
+ *                   city:
+ *                     type: string
+ *                     example: "San Francisco"
+ *                   website:
+ *                     type: string
+ *                     example: "https://volariscapital.com"
+ *                   yearFounded:
+ *                     type: integer
+ *                     example: 2010
+ *                   employeeNumber:
+ *                     type: integer
+ *                     example: 200
+ *                   investorType:
+ *                     type: string
+ *                     enum: [Financial, Strategic]
+ *                   description:
+ *                     type: string
+ *                     example: "A strategic investor specializing in software."
+ *               investmentBio:
+ *                 type: object
+ *                 properties:
+ *                   industry:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                     example: ["Software"]
+ *                   geography:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                     example: ["North America"]
+ *                   dealsInLTM:
+ *                     type: integer
+ *                     example: 5
+ *                   medianDealSize:
+ *                     type: integer
+ *                     example: 50000000
+ *                   AUM:
+ *                     type: integer
+ *                     example: 2000000000
+ *                   dealsIn5Y:
+ *                     type: integer
+ *                     example: 20
+ *     responses:
+ *       200:
+ *         description: Successfully created an investor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   example: "64e73e5c5f5a4f3b7c5f4a6c"
+ *                 companyInfo:
+ *                   type: object
+ *                 investmentBio:
+ *                   type: object
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/', authenticate, createInvestor);
+
 
 /**
  * @swagger
  * /api/investor:
  *   get:
+ *     tags: 
+ *        - Investor
  *     summary: Retrieve all investors
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: A list of investors.
  */
-router.get('/', getAllInvestors)
-
+router.get('/', authenticate, getAllInvestors);
 
 /**
  * @swagger
  * /api/investor/{id}:
  *   get:
  *     summary: Retrieve a specific investor by ID
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - name: id
  *         in: path
@@ -33,14 +143,15 @@ router.get('/', getAllInvestors)
  *       404:
  *         description: Investor not found.
  */
-router.get('/:id', getInvestor);
-
+router.get('/:id', authenticate, getInvestor);
 
 /**
  * @swagger
  * /api/investor/{id}:
  *   delete:
  *     summary: Delete a specific investor by ID
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - name: id
  *         in: path
@@ -54,8 +165,7 @@ router.get('/:id', getInvestor);
  *       404:
  *         description: Investor not found.
  */
-router.delete('/:id', deleteInvestor);
-
+router.delete('/:id', authenticate, deleteInvestor);
 
 /**
  * @swagger
@@ -63,6 +173,8 @@ router.delete('/:id', deleteInvestor);
  *   get:
  *     summary: Get investor contacts for a specific user
  *     tags: [Investor Contacts]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - name: userId
  *         in: path
@@ -108,7 +220,6 @@ router.delete('/:id', deleteInvestor);
  *       500:
  *         description: Internal server error
  */
-router.get('/:userId/contacts', getInvestorContacts);
+router.get('/:userId/contacts', authenticate, getInvestorContacts);
 
-
-export default router
+export default router;
