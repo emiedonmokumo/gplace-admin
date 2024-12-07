@@ -2,6 +2,7 @@ import express from 'express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import investorRoute from './routes/investorRoute.js';
+import stripeRoute from './routes/stripeRoute.js'
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
 import cors from 'cors';
@@ -63,6 +64,7 @@ app.get('/swagger-static/swagger.json', (req, res) => {
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/api/investor', investorRoute);
+app.use('/api/stripe', stripeRoute)
 
 app.listen(PORT || 8080, () => {
     console.log(`Server running on ${PORT}`);
