@@ -18,7 +18,7 @@ export const getStripeEvents = async (req, res) => {
     //   console.log(`Event Data:`, event.data.object);
     // });
 
-    res.status(200).json(events)
+    res.status(200).json(events.data)
   } catch (error) {
     res.status(500).json({ message: error })
   }
