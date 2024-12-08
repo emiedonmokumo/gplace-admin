@@ -9,6 +9,8 @@ const router = express.Router()
  * /api/stripe/event:
  *   get:
  *     summary: Retrieve a list of Stripe events
+ *     security:
+ *       - bearerAuth: []
  *     tags: [Stripe]
  *     description: Fetches the most recent events from Stripe.
  *     responses:
