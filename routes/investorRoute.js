@@ -12,7 +12,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /:
+ * /api/investor:
  *   post:
  *     summary: Create a new investor
  *     security:
