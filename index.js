@@ -2,6 +2,7 @@ import express from 'express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import authRoute from './routes/authRoute.js';
+import userRoute from './routes/userRoute.js'
 import investorRoute from './routes/investorRoute.js';
 import stripeRoute from './routes/stripeRoute.js';
 import dotenv from 'dotenv';
@@ -79,8 +80,9 @@ app.use(
 );
 
 // API routes
+app.use('/api/users', userRoute)
 app.use('/api/auth', authRoute);
-app.use('/api/investor', investorRoute);
+app.use('/api/investors', investorRoute);
 app.use('/api/stripe', stripeRoute);
 
 // Start the server

@@ -12,7 +12,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/investor:
+ * /api/investors:
  *   post:
  *     summary: Create a new investor
  *     security:
@@ -110,7 +110,7 @@ router.post('/', authenticate, createInvestor);
 
 /**
  * @swagger
- * /api/investor:
+ * /api/investors:
  *   get:
  *     tags: 
  *        - Investor
@@ -123,9 +123,10 @@ router.post('/', authenticate, createInvestor);
  */
 router.get('/', authenticate, getAllInvestors);
 
+
 /**
  * @swagger
- * /api/investor/{id}:
+ * /api/investors/{id}:
  *   get:
  *     summary: Retrieve a specific investor by ID
  *     security:
@@ -145,9 +146,10 @@ router.get('/', authenticate, getAllInvestors);
  */
 router.get('/:id', authenticate, getInvestor);
 
+
 /**
  * @swagger
- * /api/investor/{id}:
+ * /api/investors/{id}:
  *   delete:
  *     summary: Delete a specific investor by ID
  *     security:
@@ -169,7 +171,7 @@ router.delete('/:id', authenticate, deleteInvestor);
 
 /**
  * @swagger
- * /api/investor/{userId}/contacts:
+ * /api/investors/{userId}/contacts:
  *   get:
  *     summary: Get investor contacts for a specific user
  *     tags: [Investor Contacts]
