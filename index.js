@@ -85,43 +85,11 @@ app.use('/api/users', userRoute)
 app.use('/api/auth', authRoute);
 app.use('/api/investors', investorRoute);
 app.use('/api/stripe', stripeRoute);
-// app.get('/api/data', (req, res) => {
-//     try {
-//         // Path to the Excel file
-//         const filePath = path.join(__dirname, 'DB_vf4.xlsx'); // Replace 'data.xlsx' with your file name
-
-//         // Read the Excel file
-//         const workbook = xlsx.readFile(filePath);
-
-//         // Get the first sheet name
-//         const sheetName = workbook.SheetNames[0];
-
-//         // Get the data from the first sheet
-//         const sheet = workbook.Sheets[sheetName];
-//         const data = xlsx.utils.sheet_to_json(sheet);
-
-//         // Send the data as a JSON response
-//         res.status(200).json({
-//             success: true,
-//             message: 'Excel data retrieved successfully',
-//             data,
-//         });
-//     } catch (error) {
-//         console.error('Error reading Excel file:', error);
-//         res.status(500).json({
-//             success: false,
-//             message: 'Failed to retrieve Excel data',
-//             error: error.message,
-//         });
-//     }
-// });
-
-
 
 // Start the server
 
 // API to read and format Excel data
-app.get('/api/data', async (req, res) => {
+app.get('/api/sample/data', async (req, res) => {
     try {
         // Get query parameters for pagination
         const page = parseInt(req.query.page) || 1; // Default to page 1
