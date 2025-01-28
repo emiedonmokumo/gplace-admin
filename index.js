@@ -199,7 +199,14 @@ app.use('/api/stripe', stripeRoute);
 
 app.get('/api/xlsx/data', (req, res)=>{
     try {
-        res.status(200).json(investors)
+        // Paginate the data
+        const page = parseInt(req.query.page) || 1; // Default to page 1
+        const limit = parseInt(req.query.limit) || 10;
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+        const paginatedData = investors.slice(startIndex, endIndex);
+
+        res.status(200).json(paginatedData)
     } catch (error) {
         res.status(500).json({ message: error })
     }
