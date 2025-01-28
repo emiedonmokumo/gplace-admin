@@ -11,6 +11,7 @@ import cors from 'cors';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import bodyParser from 'body-parser';
+import xlsx from 'xlsx'
 
 dotenv.config();
 connectDB();
@@ -84,8 +85,144 @@ app.use('/api/users', userRoute)
 app.use('/api/auth', authRoute);
 app.use('/api/investors', investorRoute);
 app.use('/api/stripe', stripeRoute);
+// app.get('/api/data', (req, res) => {
+//     try {
+//         // Path to the Excel file
+//         const filePath = path.join(__dirname, 'DB_vf4.xlsx'); // Replace 'data.xlsx' with your file name
+
+//         // Read the Excel file
+//         const workbook = xlsx.readFile(filePath);
+
+//         // Get the first sheet name
+//         const sheetName = workbook.SheetNames[0];
+
+//         // Get the data from the first sheet
+//         const sheet = workbook.Sheets[sheetName];
+//         const data = xlsx.utils.sheet_to_json(sheet);
+
+//         // Send the data as a JSON response
+//         res.status(200).json({
+//             success: true,
+//             message: 'Excel data retrieved successfully',
+//             data,
+//         });
+//     } catch (error) {
+//         console.error('Error reading Excel file:', error);
+//         res.status(500).json({
+//             success: false,
+//             message: 'Failed to retrieve Excel data',
+//             error: error.message,
+//         });
+//     }
+// });
+
+
 
 // Start the server
+
+// API to read and format Excel data
+app.get('/api/data', async (req, res) => {
+    try {
+        // Get query parameters for pagination
+        const page = parseInt(req.query.page) || 1; // Default to page 1
+        const limit = parseInt(req.query.limit) || 10; // Default to 10 items per page
+
+        // Load the Excel file
+        const filePath = path.join(__dirname, 'DB_vf4.xlsx'); // Replace with your uploaded file's location if it's dynamic
+        const workbook = xlsx.readFile(filePath);
+
+        // Get the first sheet
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+
+        // Parse the sheet into JSON
+        const rawData = xlsx.utils.sheet_to_json(sheet);
+
+        // Format the raw Excel data to match the `Investor` schema
+        const formattedData = rawData.map((item) => ({
+            companyInfo: {
+                companyName: item['Company name'] || "",
+                country: item['Country'] || "",
+                city: item['City'] || "",
+                website: item['Website'] || "",
+                yearFounded: item['Year founded'],
+                employeeNumber: item['Number of employees'],
+                investorType: item['Investor type'] || "",
+                description: item['Description'] || "",
+            },
+            investmentBio: {
+                industry: item['Investment industry']?.split(',') || "",
+                geography: item['Investment geographies']?.split(',') || "",
+                dealsInLTM: item['# of deals in LTM'] || 0,
+                medianDealSize: item['Median deal Size ($K)'] || 0,
+                AUM: item['AUM ($K)'] || 0,
+                dealsIn5Y: item['Deals in 5Y'] || 0,
+            },
+            targetInfo: {
+                revenue: {
+                    from: item['Revenue ($K) - min'] || 0,
+                    to: item['Revenue ($K) - max'] || 0,
+                },
+                EBITDA: {
+                    from: item['EBITDA ($K) - min'] || 0,
+                    to: item['EBITDA ($K) - max'] || 0,
+                },
+                dealSize: {
+                    from: item['Deal size ($K) - min'] || 0,
+                    to: item['Deal size ($K) - max'] || 0,
+                },
+            },
+            paidInfo: {
+                valuation: {
+                    from: item['Valuation - min'] || 0,
+                    to: item['Valuation - max'] || 0,
+                },
+                revenue: {
+                    from: item['EV/Revenue - min'] || 0,
+                    to: item['EV/Revenue - max'] || 0,
+                },
+                EBITDA: {
+                    from: item['EV/EBITDA - min'] || 0,
+                    to: item['EV/EBITDA - max'] || 0,
+                },
+            },
+            offeredPrice: {
+                valuation: item['Offered Price Valuation'] || 0,
+                revenue: item['Offered Price Revenue'] || 0,
+                EBITDA: item['Offered Price EBITDA'] || 0,
+            },
+            primaryContact: {
+                name: item['Primary Contact Name'] || "",
+                surname: item['Primary Contact Surname'] || "",
+                email: item['Primary Contact Email'] || "",
+                phone: item['Primary Contact Phone'] || "",
+                title: item['Primary Contact Title'] || "",
+            },
+            vertical: item['Vertical'],
+            status: item['Status'],
+        }));
+
+        // Optionally save to the database
+        // await Investor.insertMany(formattedData);
+
+        // Return the formatted data
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+
+        // Paginate the data
+        const paginatedData = formattedData.slice(startIndex, endIndex);
+
+        res.status(200).json(paginatedData);
+    } catch (error) {
+        console.error('Error processing data:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to process data',
+            error: error.message,
+        });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`Swagger docs available at http://localhost:${PORT}/docs`);
