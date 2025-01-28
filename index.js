@@ -12,6 +12,8 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import bodyParser from 'body-parser';
 import xlsx from 'xlsx'
+import fs from 'fs'
+import investors from './investors.json' assert { type: 'json' };
 
 dotenv.config();
 connectDB();
@@ -89,107 +91,119 @@ app.use('/api/stripe', stripeRoute);
 // Start the server
 
 // API to read and format Excel data
-app.get('/api/sample/data', async (req, res) => {
+// app.get('/api/sample/data', async (req, res) => {
+//     try {
+//         // Get query parameters for pagination
+//         const page = parseInt(req.query.page) || 1; // Default to page 1
+//         const limit = parseInt(req.query.limit) || 10; // Default to 10 items per page
+
+//         // Load the Excel file
+//         const filePath = path.join(__dirname, 'DB_vf4.xlsx'); // Replace with your uploaded file's location if it's dynamic
+//         const workbook = xlsx.readFile(filePath);
+
+//         // Get the first sheet
+//         const sheetName = workbook.SheetNames[0];
+//         const sheet = workbook.Sheets[sheetName];
+
+//         // Parse the sheet into JSON
+//         const rawData = xlsx.utils.sheet_to_json(sheet);
+
+//         // Format the raw Excel data to match the `Investor` schema
+//         const formattedData = rawData.map((item) => ({
+//             companyInfo: {
+//                 companyName: item['Company name'] || "",
+//                 country: item['Country'] || "",
+//                 city: item['City'] || "",
+//                 website: item['Website'] || "",
+//                 yearFounded: item['Year founded'],
+//                 employeeNumber: item['Number of employees'],
+//                 investorType: item['Investor type'] || "",
+//                 description: item['Description'] || "",
+//             },
+//             investmentBio: {
+//                 industry: item['Investment industry']?.split(',') || "",
+//                 geography: item['Investment geographies']?.split(',') || "",
+//                 dealsInLTM: item['# of deals in LTM'] || 0,
+//                 medianDealSize: item['Median deal Size ($K)'] || 0,
+//                 AUM: item['AUM ($K)'] || 0,
+//                 dealsIn5Y: item['Deals in 5Y'] || 0,
+//             },
+//             targetInfo: {
+//                 revenue: {
+//                     from: item['Revenue ($K) - min'] || 0,
+//                     to: item['Revenue ($K) - max'] || 0,
+//                 },
+//                 EBITDA: {
+//                     from: item['EBITDA ($K) - min'] || 0,
+//                     to: item['EBITDA ($K) - max'] || 0,
+//                 },
+//                 dealSize: {
+//                     from: item['Deal size ($K) - min'] || 0,
+//                     to: item['Deal size ($K) - max'] || 0,
+//                 },
+//             },
+//             paidInfo: {
+//                 valuation: {
+//                     from: item['Valuation - min'] || 0,
+//                     to: item['Valuation - max'] || 0,
+//                 },
+//                 revenue: {
+//                     from: item['EV/Revenue - min'] || 0,
+//                     to: item['EV/Revenue - max'] || 0,
+//                 },
+//                 EBITDA: {
+//                     from: item['EV/EBITDA - min'] || 0,
+//                     to: item['EV/EBITDA - max'] || 0,
+//                 },
+//             },
+//             offeredPrice: {
+//                 valuation: item['Offered Price Valuation'] || 0,
+//                 revenue: item['Offered Price Revenue'] || 0,
+//                 EBITDA: item['Offered Price EBITDA'] || 0,
+//             },
+//             primaryContact: {
+//                 name: item['Primary Contact Name'] || "",
+//                 surname: item['Primary Contact Surname'] || "",
+//                 email: item['Primary Contact Email'] || "",
+//                 phone: item['Primary Contact Phone'] || "",
+//                 title: item['Primary Contact Title'] || "",
+//             },
+//             vertical: item['Vertical'],
+//             status: item['Status'],
+//         }));
+
+//         // Optionally save to the database
+//         // await Investor.insertMany(formattedData);
+
+//         // Return the formatted data
+//         const startIndex = (page - 1) * limit;
+//         const endIndex = page * limit;
+//         // Write the formatted data to a JSON file
+//         // const filePathToSave = path.join(__dirname, 'investors.json');
+//         fs.writeFileSync(filePathToSave, JSON.stringify(formattedData, null, 2), 'utf-8');
+
+
+//         // Paginate the data
+//         const paginatedData = formattedData.slice(startIndex, endIndex);
+
+//         res.status(200).json(paginatedData);
+//     } catch (error) {
+//         console.error('Error processing data:', error);
+//         res.status(500).json({
+//             success: false,
+//             message: 'Failed to process data',
+//             error: error.message,
+//         });
+//     }
+// });
+
+app.get('/api/xlsx/data', (req, res)=>{
     try {
-        // Get query parameters for pagination
-        const page = parseInt(req.query.page) || 1; // Default to page 1
-        const limit = parseInt(req.query.limit) || 10; // Default to 10 items per page
-
-        // Load the Excel file
-        const filePath = path.join(__dirname, 'DB_vf4.xlsx'); // Replace with your uploaded file's location if it's dynamic
-        const workbook = xlsx.readFile(filePath);
-
-        // Get the first sheet
-        const sheetName = workbook.SheetNames[0];
-        const sheet = workbook.Sheets[sheetName];
-
-        // Parse the sheet into JSON
-        const rawData = xlsx.utils.sheet_to_json(sheet);
-
-        // Format the raw Excel data to match the `Investor` schema
-        const formattedData = rawData.map((item) => ({
-            companyInfo: {
-                companyName: item['Company name'] || "",
-                country: item['Country'] || "",
-                city: item['City'] || "",
-                website: item['Website'] || "",
-                yearFounded: item['Year founded'],
-                employeeNumber: item['Number of employees'],
-                investorType: item['Investor type'] || "",
-                description: item['Description'] || "",
-            },
-            investmentBio: {
-                industry: item['Investment industry']?.split(',') || "",
-                geography: item['Investment geographies']?.split(',') || "",
-                dealsInLTM: item['# of deals in LTM'] || 0,
-                medianDealSize: item['Median deal Size ($K)'] || 0,
-                AUM: item['AUM ($K)'] || 0,
-                dealsIn5Y: item['Deals in 5Y'] || 0,
-            },
-            targetInfo: {
-                revenue: {
-                    from: item['Revenue ($K) - min'] || 0,
-                    to: item['Revenue ($K) - max'] || 0,
-                },
-                EBITDA: {
-                    from: item['EBITDA ($K) - min'] || 0,
-                    to: item['EBITDA ($K) - max'] || 0,
-                },
-                dealSize: {
-                    from: item['Deal size ($K) - min'] || 0,
-                    to: item['Deal size ($K) - max'] || 0,
-                },
-            },
-            paidInfo: {
-                valuation: {
-                    from: item['Valuation - min'] || 0,
-                    to: item['Valuation - max'] || 0,
-                },
-                revenue: {
-                    from: item['EV/Revenue - min'] || 0,
-                    to: item['EV/Revenue - max'] || 0,
-                },
-                EBITDA: {
-                    from: item['EV/EBITDA - min'] || 0,
-                    to: item['EV/EBITDA - max'] || 0,
-                },
-            },
-            offeredPrice: {
-                valuation: item['Offered Price Valuation'] || 0,
-                revenue: item['Offered Price Revenue'] || 0,
-                EBITDA: item['Offered Price EBITDA'] || 0,
-            },
-            primaryContact: {
-                name: item['Primary Contact Name'] || "",
-                surname: item['Primary Contact Surname'] || "",
-                email: item['Primary Contact Email'] || "",
-                phone: item['Primary Contact Phone'] || "",
-                title: item['Primary Contact Title'] || "",
-            },
-            vertical: item['Vertical'],
-            status: item['Status'],
-        }));
-
-        // Optionally save to the database
-        // await Investor.insertMany(formattedData);
-
-        // Return the formatted data
-        const startIndex = (page - 1) * limit;
-        const endIndex = page * limit;
-
-        // Paginate the data
-        const paginatedData = formattedData.slice(startIndex, endIndex);
-
-        res.status(200).json(paginatedData);
+        res.status(200).json(investors)
     } catch (error) {
-        console.error('Error processing data:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Failed to process data',
-            error: error.message,
-        });
+        res.status(500).json({ message: error })
     }
-});
+})
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
