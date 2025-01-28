@@ -13,7 +13,7 @@ import path from 'path';
 import bodyParser from 'body-parser';
 import xlsx from 'xlsx'
 import fs from 'fs'
-import investors from './investors.json' assert { type: 'json' };
+import investors from "./investors.json" with { type: 'json' }
 
 dotenv.config();
 connectDB();
