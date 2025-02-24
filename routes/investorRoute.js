@@ -16,7 +16,7 @@ const router = express.Router();
  *   post:
  *     summary: Create a new investor
  *     security:
- *       - BearerAuth: []
+ *       - bearerAuth: []
  *     tags:
  *       - Investor
  *     requestBody:

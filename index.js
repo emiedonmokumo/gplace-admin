@@ -5,6 +5,7 @@ import authRoute from './routes/authRoute.js';
 import userRoute from './routes/userRoute.js'
 import investorRoute from './routes/investorRoute.js';
 import stripeRoute from './routes/stripeRoute.js';
+import subscriptionRoute from './routes/subscriptionRoute.js';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
 import cors from 'cors';
@@ -13,7 +14,7 @@ import path from 'path';
 import bodyParser from 'body-parser';
 import xlsx from 'xlsx'
 import fs from 'fs'
-import investors from "./investors.json" with { type: 'json' }
+// import investors from "./investors.json" with { type: 'json' }
 
 dotenv.config();
 connectDB();
@@ -87,6 +88,7 @@ app.use('/api/users', userRoute)
 app.use('/api/auth', authRoute);
 app.use('/api/investors', investorRoute);
 app.use('/api/stripe', stripeRoute);
+app.use('/api/subscription', subscriptionRoute);
 
 // Start the server
 
@@ -197,20 +199,20 @@ app.use('/api/stripe', stripeRoute);
 //     }
 // });
 
-app.get('/api/xlsx/data', (req, res)=>{
-    try {
-        // Paginate the data
-        const page = parseInt(req.query.page) || 1; // Default to page 1
-        const limit = parseInt(req.query.limit) || 10;
-        const startIndex = (page - 1) * limit;
-        const endIndex = page * limit;
-        const paginatedData = investors.slice(startIndex, endIndex);
+// app.get('/api/xlsx/data', (req, res)=>{
+//     try {
+//         // Paginate the data
+//         const page = parseInt(req.query.page) || 1; // Default to page 1
+//         const limit = parseInt(req.query.limit) || 10;
+//         const startIndex = (page - 1) * limit;
+//         const endIndex = page * limit;
+//         const paginatedData = investors.slice(startIndex, endIndex);
 
-        res.status(200).json(paginatedData)
-    } catch (error) {
-        res.status(500).json({ message: error })
-    }
-})
+//         res.status(200).json(paginatedData)
+//     } catch (error) {
+//         res.status(500).json({ message: error })
+//     }
+// })
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
