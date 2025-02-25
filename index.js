@@ -6,6 +6,7 @@ import userRoute from './routes/userRoute.js'
 import investorRoute from './routes/investorRoute.js';
 import stripeRoute from './routes/stripeRoute.js';
 import subscriptionRoute from './routes/subscriptionRoute.js';
+import activityLogRoute from './routes/activityLogRoute.js';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
 import cors from 'cors';
@@ -89,6 +90,7 @@ app.use('/api/auth', authRoute);
 app.use('/api/investors', investorRoute);
 app.use('/api/stripe', stripeRoute);
 app.use('/api/subscription', subscriptionRoute);
+app.use('/api/activity', activityLogRoute);
 
 // Start the server
 
